@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0e0e">
+<title>Light</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0e0e0e;
+  --line: #2b2b2b;
+  --text: #e6e6e6;
+  --dim: #8a8a8a;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+button { font: inherit; color: inherit; cursor: pointer; border-radius: 0; }
+main { max-width: 460px; margin: 0 auto; padding: 16px 16px 28px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+h1 { font-size: 18px; font-weight: 600; margin: 0; }
+h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); margin: 0 0 12px; display: flex; justify-content: space-between; }
+.status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--dim); text-align: right; }
+.dot { width: 8px; height: 8px; flex: none; background: #555; }
+.dot.ok { background: #3ecf6e; }
+.dot.busy { background: #e0a030; }
+.dot.bad { background: #e05050; }
+.note { font-size: 13px; color: #e0a030; border: 1px solid #4a3a14; padding: 8px 10px; margin: 0 0 12px; }
+.preview { height: 140px; border: 1px solid var(--line); display: flex; align-items: flex-end; padding: 10px 12px; font-size: 13px; transition: background-color .15s; }
+.preview.fx { background-image: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); background-size: 300% 100%; animation: slide 6s linear infinite; }
+@keyframes slide { to { background-position: 150% 0; } }
+.power { display: block; width: 100%; margin: 12px 0 4px; padding: 14px; background: transparent; border: 1px solid var(--line); font-weight: 600; }
+.power.on { background: var(--text); color: #000; border-color: var(--text); }
+section { border-top: 1px solid var(--line); padding: 16px 0 10px; margin-top: 16px; }
+.swatches { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; margin-bottom: 12px; }
+.swatches button { aspect-ratio: 1; padding: 0; border: 1px solid var(--line); }
+.swatches button.sel { outline: 1px solid var(--text); outline-offset: 2px; }
+.row { display: grid; grid-template-columns: 84px 1fr; align-items: center; gap: 10px; margin: 6px 0; font-size: 13px; color: var(--dim); }
+input[type=range] { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 30px; margin: 0; background: transparent; }
+input[type=range]::-webkit-slider-runnable-track { height: 12px; border: 1px solid var(--line); background: var(--track, #1c1c1c); }
+input[type=range]::-moz-range-track { height: 12px; border: 1px solid var(--line); background: var(--track, #1c1c1c); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 24px; margin-top: -7px; background: #fff; border: 1px solid #000; }
+input[type=range]::-moz-range-thumb { width: 14px; height: 24px; background: #fff; border: 1px solid #000; border-radius: 0; }
+.effects { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+.effects button { text-align: left; padding: 9px 10px; background: transparent; border: 1px solid var(--line); font-size: 13px; }
+.effects button.sel { border-color: var(--text); background: #1d1d1d; }
+footer { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 14px; font-size: 12px; color: var(--dim); }
+.lock { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; background: var(--bg); }
+.lock form, .lock .box { width: 100%; max-width: 300px; }
+.lock p { color: var(--dim); font-size: 14px; }
+.lock input { width: 100%; padding: 12px; font: inherit; font-size: 20px; letter-spacing: .3em; text-align: center; color: var(--text); background: transparent; border: 1px solid var(--line); border-radius: 0; }
+.lock input:focus { outline: 1px solid var(--text); outline-offset: -1px; }
+.lock button { width: 100%; margin-top: 10px; padding: 12px; background: var(--text); color: #000; border: 0; font-weight: 600; }
+.msg { color: #e66 !important; min-height: 1.4em; font-size: 13px; }
+.offline { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 16px; background: #221800; border-top: 1px solid #5a4210; color: #e0b050; font-size: 13px; text-align: center; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main id="app" hidden>
+  <header>
+    <h1>Light</h1>
+    <div class="status"><span id="statusText">Connecting</span><span id="dot" class="dot"></span></div>
+  </header>
+  <p id="note" class="note" hidden></p>
+  <div id="preview" class="preview"><span id="previewLabel"></span></div>
+  <button id="power" class="power" type="button">Turn off</button>
+
+  <section id="colorSection">
+    <h2>Color</h2>
+    <div id="swatches" class="swatches"></div>
+    <label class="row"><span>Hue</span><input id="hue" type="range" min="0" max="359" value="0"></label>
+    <label class="row"><span>Saturation</span><input id="sat" type="range" min="0" max="100" value="100"></label>
+  </section>
+
+  <section>
+    <h2>Brightness <span id="brightVal"></span></h2>
+    <input id="bright" type="range" min="1" max="100" value="100">
+  </section>
+
+  <section id="effectSection" hidden>
+    <h2>Effects</h2>
+    <div id="effects" class="effects"></div>
+    <label id="speedRow" class="row"><span>Speed</span><input id="speed" type="range" min="0" max="100" value="50"></label>
+  </section>
+
+  <footer id="viewers"></footer>
+</main>
+
+<div id="lock" class="lock" hidden>
+  <form id="pinForm">
+    <h1>Light</h1>
+    <p>Enter the PIN to control the light.</p>
+    <input id="pin" inputmode="numeric" autocomplete="off" maxlength="12" aria-label="PIN">
+    <button type="submit">Unlock</button>
+    <p id="pinMsg" class="msg"></p>
+  </form>
+</div>
+
+<div id="away" class="lock" hidden>
+  <div class="box">
+    <h1>Light</h1>
+    <p>The laptop that runs the light is offline right now. This page connects by itself when it's back.</p>
+  </div>
+</div>
+
+<div id="offline" class="offline" hidden>Connection lost. Reconnecting...</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const SWATCHES = [[255,0,0],[255,90,0],[255,200,0],[0,255,0],[0,255,190],[0,90,255],[140,0,255],[255,0,140],[255,255,255]];
+const STATUS = {
+  connected: ['Connected', 'ok'],
+  idle: ['Ready', ''],
+  searching: ['Looking for the light', 'busy'],
+  connecting: ['Connecting to the light', 'busy'],
+  error: ['Can\'t reach the light', 'bad'],
+};
+
+let ws, state = null, caps = { color: true, effects: [], speed: false }, link = {}, viewers = 0;
+let retry = 500, lastSent = 0, flushTimer = null;
+const pending = {};
+const touched = {};
+
+const store = {
+  get() { try { return localStorage.getItem('light-pin') || ''; } catch { return ''; } },
+  set(v) { try { v ? localStorage.setItem('light-pin', v) : localStorage.removeItem('light-pin'); } catch {} },
+};
+
+function hsvToRgb(h, s, v) {
+  s /= 100; v /= 100;
+  const f = n => { const k = (n + h / 60) % 6; return Math.round(255 * (v - v * s * Math.max(0, Math.min(k, 4 - k, 1)))); };
+  return [f(5), f(3), f(1)];
+}
+
+function rgbToHs([r, g, b]) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), d = max - Math.min(r, g, b);
+  let h = 0;
+  if (d) {
+    if (max === r) h = ((g - b) / d) % 6;
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h = (h * 60 + 360) % 360;
+  }
+  return [Math.round(h), max ? Math.round(d / max * 100) : 0];
+}
+
+const css = c => `rgb(${c[0]},${c[1]},${c[2]})`;
+const label = name => name.replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());
+
+function connect() {
+  ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws');
+  ws.onopen = () => { retry = 500; $('offline').hidden = true; };
+  ws.onmessage = e => handle(JSON.parse(e.data));
+  ws.onclose = () => {
+    if (state) $('offline').hidden = false;
+    setTimeout(connect, retry);
+    retry = Math.min(retry * 2, 8000);
+  };
+}
+
+function handle(m) {
+  if (m.t === 'laptop') {
+    $('away').hidden = m.online;
+    return;
+  }
+  $('away').hidden = true;
+  if (m.t === 'need_pin') {
+    const pin = store.get();
+    if (pin) ws.send(JSON.stringify({ t: 'auth', pin }));
+    else showLock('');
+  } else if (m.t === 'auth') {
+    if (m.ok) $('lock').hidden = true;
+    else { store.set(''); showLock(m.msg); }
+  } else if (m.t === 'state') {
+    state = m.state; caps = m.caps; link = m.link; viewers = m.viewers;
+    $('app').hidden = false;
+    render();
+  }
+}
+
+function showLock(msg) {
+  $('lock').hidden = false;
+  $('pinMsg').textContent = msg || '';
+  $('pin').value = '';
+  $('pin').focus();
+}
+
+$('pinForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const pin = $('pin').value.trim();
+  if (!pin || !ws || ws.readyState !== 1) return;
+  store.set(pin);
+  ws.send(JSON.stringify({ t: 'auth', pin }));
+});
+
+function send(fields) {
+  Object.assign(pending, fields);
+  if ('color' in fields) Object.assign(state, { color: fields.color, mode: 'color', on: true });
+  if ('brightness' in fields) Object.assign(state, { brightness: fields.brightness, on: true });
+  if ('effect' in fields) Object.assign(state, { effect: fields.effect, mode: 'effect', on: true });
+  if ('speed' in fields) state.speed = fields.speed;
+  if ('on' in fields) state.on = fields.on;
+  render();
+  const wait = 100 - (Date.now() - lastSent);
+  if (wait <= 0) flush();
+  else if (!flushTimer) flushTimer = setTimeout(flush, wait);
+}
+
+function flush() {
+  flushTimer = null;
+  if (!Object.keys(pending).length) return;
+  if (ws && ws.readyState === 1) ws.send(JSON.stringify({ t: 'set', ...pending }));
+  for (const k in pending) delete pending[k];
+  lastSent = Date.now();
+}
+
+function setSlider(id, value) {
+  if (Date.now() - (touched[id] || 0) > 700) $(id).value = value;
+}
+
+function render() {
+  const [text, cls] = STATUS[link.status] || ['', ''];
+  $('statusText').textContent = link.status === 'connected' && link.name ? `Connected to ${link.name}` : text;
+  $('dot').className = 'dot ' + cls;
+  $('note').hidden = link.status !== 'error';
+  $('note').textContent = link.message || '';
+
+  const shown = state.brightness / 100 * 0.8 + 0.2;
+  const color = state.color.map(c => Math.round(c * shown));
+  const preview = $('preview');
+  const fx = state.on && state.mode === 'effect';
+  preview.classList.toggle('fx', fx);
+  preview.style.backgroundColor = state.on ? css(color) : '#000';
+  preview.style.opacity = fx ? shown : 1;
+  const light = state.on && !fx && (color[0] * 0.3 + color[1] * 0.59 + color[2] * 0.11) > 140;
+  preview.style.color = light ? '#000' : '#fff';
+  $('previewLabel').textContent = !state.on ? 'Off' : fx ? label(state.effect) : `${state.brightness}%`;
+
+  const power = $('power');
+  power.textContent = state.on ? 'Turn off' : 'Turn on';
+  power.classList.toggle('on', state.on);
+
+  $('colorSection').hidden = !caps.color;
+  const [h, s] = rgbToHs(state.color);
+  if (s > 0) setSlider('hue', h);
+  setSlider('sat', s);
+  const hue = +$('hue').value;
+  $('hue').style.setProperty('--track', 'linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)');
+  $('sat').style.setProperty('--track', `linear-gradient(90deg,#fff,hsl(${hue},100%,50%))`);
+  [...$('swatches').children].forEach((b, i) => {
+    b.classList.toggle('sel', state.mode === 'color' && SWATCHES[i].every((v, j) => v === state.color[j]));
+  });
+
+  setSlider('bright', state.brightness);
+  $('brightVal').textContent = state.brightness + '%';
+  $('bright').style.setProperty('--track', `linear-gradient(90deg,#000,${css(state.color)})`);
+
+  $('effectSection').hidden = !caps.effects.length;
+  $('speedRow').hidden = !caps.speed;
+  const box = $('effects');
+  if (box.dataset.list !== caps.effects.join()) {
+    box.dataset.list = caps.effects.join();
+    box.replaceChildren(...caps.effects.map(name => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label(name);
+      b.dataset.name = name;
+      b.onclick = () => send({ effect: name });
+      return b;
+    }));
+  }
+  [...box.children].forEach(b => b.classList.toggle('sel', state.mode === 'effect' && b.dataset.name === state.effect));
+  setSlider('speed', state.speed);
+
+  $('viewers').textContent = viewers > 1 ? `${viewers} people have this page open. Changes show up for everyone.` : 'Only you have this page open right now.';
+}
+
+SWATCHES.forEach(c => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.style.background = css(c);
+  b.setAttribute('aria-label', css(c));
+  b.onclick = () => send({ color: c });
+  $('swatches').append(b);
+});
+
+function slider(id, fn) {
+  $(id).addEventListener('input', () => { touched[id] = Date.now(); fn(+$(id).value); });
+}
+slider('hue', () => send({ color: hsvToRgb(+$('hue').value, +$('sat').value, 100) }));
+slider('sat', () => send({ color: hsvToRgb(+$('hue').value, +$('sat').value, 100) }));
+slider('bright', v => send({ brightness: v }));
+slider('speed', v => send({ speed: v }));
+$('power').onclick = () => send({ on: !state.on });
+
+connect();
+</script>
+</body>
+</html>
