@@ -13,6 +13,7 @@ import aiohttp
 import certifi
 from aiohttp import WSMsgType, web
 
+from games import PALETTE, Arcade
 from light import Light, capabilities, find_model, model_key
 
 ROOT = Path(__file__).parent
@@ -88,6 +89,8 @@ class Hub:
         self.light = Light(cfg, fake=fake, on_change=self.light_changed)
         if self.model_key and not self.light.active_model:
             self.light.known_model = find_model(self.model_key)
+        self.arcade = Arcade(self, saved)
+        self.arcade_pending = False
 
     def snapshot(self):
         light = self.light
@@ -99,13 +102,22 @@ class Hub:
             "viewers": len(self.sessions),
         }
 
-    async def broadcast(self):
-        msg = self.snapshot()
+    async def broadcast(self, msg=None):
+        msg = msg or self.snapshot()
         for session in list(self.sessions):
             try:
                 await session.send(msg)
             except Exception:
                 self.sessions.discard(session)
+
+    def arcade_changed(self):
+        if not self.arcade_pending:
+            self.arcade_pending = True
+            self.loop.call_later(0.06, lambda: asyncio.ensure_future(self.send_arcade()))
+
+    async def send_arcade(self):
+        self.arcade_pending = False
+        await self.broadcast(self.arcade.view())
 
     def light_changed(self):
         self.loop.call_soon_threadsafe(self._light_changed)
@@ -133,7 +145,8 @@ class Hub:
         if s["mode"] == "effect" and s["effect"] not in effects:
             s["mode"] = "color"
         self.state = s
-        self.light.request(s)
+        if not self.arcade.busy:
+            self.light.request(s)
         self.save_soon()
 
     def save_soon(self):
@@ -143,7 +156,7 @@ class Hub:
 
     def save(self):
         self.save_handle = None
-        save_json(STATE, {**self.state, "model": self.model_key})
+        save_json(STATE, {**self.state, "model": self.model_key, "scores": self.arcade.scores, "wins": self.arcade.wins})
 
     def check_pin(self, ip, pin):
         now = time.monotonic()
@@ -163,6 +176,12 @@ class Session:
         self.send = send
         self.ip = ip or "?"
         self.authed = False
+        self.id = secrets.token_hex(4)
+        self.name = "Guest"
+        self.color = list(PALETTE)[len(hub.sessions) % len(PALETTE)]
+
+    def public(self):
+        return {"id": self.id, "name": self.name, "color": self.color}
 
     async def start(self):
         if self.hub.cfg["pin"]:
@@ -173,7 +192,9 @@ class Session:
     async def join(self):
         self.authed = True
         self.hub.sessions.add(self)
+        await self.send({"t": "you", "id": self.id})
         await self.hub.broadcast()
+        self.hub.arcade_changed()
 
     async def receive(self, raw):
         try:
@@ -193,17 +214,28 @@ class Session:
                 text = "Too many wrong tries. Wait 10 minutes." if result == "locked" else "Wrong PIN."
                 await self.send({"t": "auth", "ok": False, "msg": text})
             return
-        if data.get("t") == "set":
+        kind = data.get("t")
+        if kind == "set":
             try:
                 self.hub.update(data)
             except (TypeError, ValueError):
                 pass
             await self.hub.broadcast()
+        elif kind == "hello":
+            name = "".join(ch for ch in str(data.get("name") or "") if ch.isprintable()).strip()[:16]
+            self.name = name or self.name
+            if data.get("color") in PALETTE:
+                self.color = data["color"]
+            self.hub.arcade_changed()
+        elif kind == "g":
+            self.hub.arcade.handle(self, data)
 
     async def close(self):
         if self in self.hub.sessions:
+            self.hub.arcade.left(self)
             self.hub.sessions.discard(self)
             await self.hub.broadcast()
+            self.hub.arcade_changed()
 
 
 async def index(request):
@@ -357,6 +389,7 @@ async def make_app(cfg, fake, use_tunnel):
             app["tasks"].append(asyncio.create_task(tunnel(cfg["port"])))
 
     async def stop(app):
+        hub.arcade.stop()
         for task in app["tasks"]:
             task.cancel()
         await asyncio.gather(*app["tasks"], return_exceptions=True)

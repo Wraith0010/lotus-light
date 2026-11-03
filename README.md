@@ -15,6 +15,17 @@ so the link never changes: https://lotus-light.solar-cloud.workers.dev
 If the page says Connected but the light doesn't react, close `start.bat`, run `find-light.bat`,
 type `y` when the light changes color, then run `start.bat` again.
 
+## Games
+
+The Games tab has a nudge button (flashes the light in your color) and 10 games that use the light
+as the scoreboard. Everyone types a name the first time they open the page and picks a color.
+
+- 1v1: Tug of war, Reaction duel, Color snap, Hot potato, Rock paper scissors
+- Solo: Simon says, Color memory, Reaction test, Whack-a-color, Stop the light
+
+One game runs at a time. The laptop keeps the best solo scores and 1v1 wins.
+Reaction times are measured on each player's own screen, so internet lag doesn't decide who wins.
+
 ## Things to know
 
 - Settings (PIN, saved light, the laptop's relay key) live in `%APPDATA%\lotus-light\config.json`.

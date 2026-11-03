@@ -129,6 +129,12 @@ class Light:
     def active_model(self):
         return self.model or self.known_model
 
+    async def ready(self, timeout=12):
+        end = time.monotonic() + timeout
+        while not self.connected and time.monotonic() < end:
+            await asyncio.sleep(0.1)
+        return self.connected
+
     async def run(self):
         backoff = 3
         while True:

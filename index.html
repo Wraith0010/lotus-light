@@ -16,6 +16,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
 button { font: inherit; color: inherit; cursor: pointer; border-radius: 0; }
+button:disabled { opacity: .4; cursor: default; }
 main { max-width: 460px; margin: 0 auto; padding: 16px 16px 28px; }
 header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 h1 { font-size: 18px; font-weight: 600; margin: 0; }
@@ -26,6 +27,11 @@ h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacin
 .dot.busy { background: #e0a030; }
 .dot.bad { background: #e05050; }
 .note { font-size: 13px; color: #e0a030; border: 1px solid #4a3a14; padding: 8px 10px; margin: 0 0 12px; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); margin-bottom: 14px; }
+.tabs button { background: transparent; border: 0; padding: 10px; font-weight: 600; color: var(--dim); position: relative; }
+.tabs button + button { border-left: 1px solid var(--line); }
+.tabs button.sel { color: var(--text); background: #1b1b1b; }
+.tabs button.ping::after { content: ""; position: absolute; top: 9px; right: 12px; width: 6px; height: 6px; background: #e0a030; }
 .preview { height: 140px; border: 1px solid var(--line); display: flex; align-items: flex-end; padding: 10px 12px; font-size: 13px; transition: background-color .15s; }
 .preview.fx { background-image: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); background-size: 300% 100%; animation: slide 6s linear infinite; }
 @keyframes slide { to { background-position: 150% 0; } }
@@ -33,8 +39,8 @@ h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacin
 .power.on { background: var(--text); color: #000; border-color: var(--text); }
 section { border-top: 1px solid var(--line); padding: 16px 0 10px; margin-top: 16px; }
 .swatches { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; margin-bottom: 12px; }
-.swatches button { aspect-ratio: 1; padding: 0; border: 1px solid var(--line); }
-.swatches button.sel { outline: 1px solid var(--text); outline-offset: 2px; }
+.swatches button, .chips button { aspect-ratio: 1; padding: 0; border: 1px solid var(--line); }
+.swatches button.sel, .chips button.sel { outline: 1px solid var(--text); outline-offset: 2px; }
 .row { display: grid; grid-template-columns: 84px 1fr; align-items: center; gap: 10px; margin: 6px 0; font-size: 13px; color: var(--dim); }
 input[type=range] { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 30px; margin: 0; background: transparent; }
 input[type=range]::-webkit-slider-runnable-track { height: 12px; border: 1px solid var(--line); background: var(--track, #1c1c1c); }
@@ -44,15 +50,68 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 24px; background: #ff
 .effects { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
 .effects button { text-align: left; padding: 9px 10px; background: transparent; border: 1px solid var(--line); font-size: 13px; }
 .effects button.sel { border-color: var(--text); background: #1d1d1d; }
+.me { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
+.me label { display: grid; gap: 6px; font-size: 12px; color: var(--dim); }
+.text { width: 100%; padding: 10px; font: inherit; color: var(--text); background: transparent; border: 1px solid var(--line); border-radius: 0; }
+.text:focus { outline: 1px solid var(--text); outline-offset: -1px; }
+.chips { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.wide { display: block; width: 100%; padding: 12px; background: transparent; border: 1px solid var(--line); font-weight: 600; }
+.wide.solid { background: var(--text); color: #000; border-color: var(--text); }
+.banner { border: 1px solid var(--line); padding: 12px; margin: 12px 0; font-size: 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.banner button { background: var(--text); color: #000; border: 0; padding: 8px 14px; font-weight: 600; flex: none; }
+.banner .swatch { width: 14px; height: 14px; flex: none; border: 1px solid var(--line); }
+.cards { display: grid; gap: 8px; }
+.card { border: 1px solid var(--line); padding: 12px; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; }
+.card h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.card p { margin: 0; font-size: 12px; color: var(--dim); }
+.card .best { display: block; color: var(--text); margin-top: 2px; }
+.card button { grid-row: 1 / span 2; grid-column: 2; background: transparent; border: 1px solid var(--text); padding: 8px 12px; font-size: 13px; font-weight: 600; }
+.small { font-size: 12px; color: var(--dim); margin: 8px 0 0; }
+.game { border: 1px solid var(--line); padding: 12px; margin: 12px 0; }
+.g-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 13px; }
+.g-head .title { font-weight: 600; font-size: 15px; margin-right: auto; }
+.g-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 14px; }
+.g-row .wide { flex: 1; }
+.ghost { background: transparent; border: 1px solid var(--line); padding: 6px 10px; font-size: 13px; }
+.glow { height: 10px; border: 1px solid var(--line); margin-bottom: 12px; background: #000; transition: background-color .12s; }
+.vs { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 14px; }
+.vs .p2 { text-align: right; }
+.vs b { font-size: 22px; }
+.chip { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: middle; }
+.big { font-size: 22px; font-weight: 600; text-align: center; padding: 16px 8px; min-height: 66px; }
+.huge { font-size: 52px; }
+.zone { height: 210px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px; font-size: 24px; font-weight: 700; border: 1px solid var(--line); background: #151515; user-select: none; -webkit-user-select: none; touch-action: manipulation; cursor: pointer; }
+.pads { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pads button { height: 72px; padding: 0; border: 1px solid var(--line); touch-action: manipulation; }
+.pads.dim button { filter: brightness(.35); }
+.pads button.lit { filter: none; border-color: #fff; }
+.grid9 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.grid9 button { aspect-ratio: 1; padding: 0; background: #151515; border: 1px solid var(--line); touch-action: manipulation; }
+.bar { height: 6px; border: 1px solid var(--line); margin: 0 0 6px; }
+.bar i { display: block; height: 100%; width: 100%; background: var(--text); }
+.rope { position: relative; height: 34px; border: 1px solid var(--line); margin: 8px 0 14px; }
+.rope .mid { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #555; }
+.rope .fill { position: absolute; top: 0; bottom: 0; }
+.rope .knot { position: absolute; top: -4px; bottom: -4px; width: 6px; margin-left: -3px; background: #fff; }
+.pull { display: block; width: 100%; height: 150px; font-size: 26px; font-weight: 700; background: var(--text); color: #000; border: 0; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.opts.two { grid-template-columns: 1fr 1fr; }
+.opts button { height: 64px; border: 1px solid var(--line); background: transparent; font-size: 18px; font-weight: 600; touch-action: manipulation; }
+.opts button.sel { background: var(--text); color: #000; }
+.colorbox { height: 90px; border: 1px solid var(--line); margin-bottom: 8px; }
+.word { font-size: 34px; font-weight: 800; text-align: center; padding: 4px 0 12px; letter-spacing: .04em; }
+.result { text-align: center; font-size: 14px; color: var(--dim); min-height: 1.4em; margin: 10px 0 0; }
 footer { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 14px; font-size: 12px; color: var(--dim); }
-.lock { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; background: var(--bg); }
+.lock { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; background: var(--bg); z-index: 3; }
 .lock form, .lock .box { width: 100%; max-width: 300px; }
 .lock p { color: var(--dim); font-size: 14px; }
 .lock input { width: 100%; padding: 12px; font: inherit; font-size: 20px; letter-spacing: .3em; text-align: center; color: var(--text); background: transparent; border: 1px solid var(--line); border-radius: 0; }
 .lock input:focus { outline: 1px solid var(--text); outline-offset: -1px; }
+.lock input.name { letter-spacing: normal; font-size: 18px; }
 .lock button { width: 100%; margin-top: 10px; padding: 12px; background: var(--text); color: #000; border: 0; font-weight: 600; }
 .msg { color: #e66 !important; min-height: 1.4em; font-size: 13px; }
-.offline { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 16px; background: #221800; border-top: 1px solid #5a4210; color: #e0b050; font-size: 13px; text-align: center; }
+.offline { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 16px; background: #221800; border-top: 1px solid #5a4210; color: #e0b050; font-size: 13px; text-align: center; z-index: 4; }
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); background: #1d1d1d; border: 1px solid #444; padding: 10px 14px; font-size: 13px; z-index: 5; }
 [hidden] { display: none !important; }
 </style>
 </head>
@@ -63,26 +122,58 @@ footer { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 14px;
     <div class="status"><span id="statusText">Connecting</span><span id="dot" class="dot"></span></div>
   </header>
   <p id="note" class="note" hidden></p>
-  <div id="preview" class="preview"><span id="previewLabel"></span></div>
-  <button id="power" class="power" type="button">Turn off</button>
+  <nav class="tabs">
+    <button id="tabLight" type="button" class="sel">Light</button>
+    <button id="tabGames" type="button">Games</button>
+  </nav>
 
-  <section id="colorSection">
-    <h2>Color</h2>
-    <div id="swatches" class="swatches"></div>
-    <label class="row"><span>Hue</span><input id="hue" type="range" min="0" max="359" value="0"></label>
-    <label class="row"><span>Saturation</span><input id="sat" type="range" min="0" max="100" value="100"></label>
-  </section>
+  <div id="paneLight">
+    <p id="busyNote" class="note" hidden>A game is using the light right now. Changes here apply when it ends.</p>
+    <div id="preview" class="preview"><span id="previewLabel"></span></div>
+    <button id="power" class="power" type="button">Turn off</button>
 
-  <section>
-    <h2>Brightness <span id="brightVal"></span></h2>
-    <input id="bright" type="range" min="1" max="100" value="100">
-  </section>
+    <section id="colorSection">
+      <h2>Color</h2>
+      <div id="swatches" class="swatches"></div>
+      <label class="row"><span>Hue</span><input id="hue" type="range" min="0" max="359" value="0"></label>
+      <label class="row"><span>Saturation</span><input id="sat" type="range" min="0" max="100" value="100"></label>
+    </section>
 
-  <section id="effectSection" hidden>
-    <h2>Effects</h2>
-    <div id="effects" class="effects"></div>
-    <label id="speedRow" class="row"><span>Speed</span><input id="speed" type="range" min="0" max="100" value="50"></label>
-  </section>
+    <section>
+      <h2>Brightness <span id="brightVal"></span></h2>
+      <input id="bright" type="range" min="1" max="100" value="100">
+    </section>
+
+    <section id="effectSection" hidden>
+      <h2>Effects</h2>
+      <div id="effects" class="effects"></div>
+      <label id="speedRow" class="row"><span>Speed</span><input id="speed" type="range" min="0" max="100" value="50"></label>
+    </section>
+  </div>
+
+  <div id="paneGames" hidden>
+    <div class="me">
+      <label>Your name<input id="myName" class="text" maxlength="16" autocomplete="off" placeholder="Guest"></label>
+      <label>Your color<div id="myColors" class="chips"></div></label>
+    </div>
+    <button id="nudge" class="wide" type="button">Nudge the light</button>
+    <div id="activity" class="banner" hidden></div>
+    <div id="gameView" hidden></div>
+    <div id="lobby">
+      <section>
+        <h2>1v1</h2>
+        <div id="duels" class="cards"></div>
+      </section>
+      <section>
+        <h2>Solo</h2>
+        <div id="solos" class="cards"></div>
+      </section>
+      <section>
+        <h2>Wins</h2>
+        <p id="wins" class="small"></p>
+      </section>
+    </div>
+  </div>
 
   <footer id="viewers"></footer>
 </main>
@@ -97,6 +188,16 @@ footer { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 14px;
   </form>
 </div>
 
+<div id="nameGate" class="lock" hidden>
+  <form id="nameForm">
+    <h1>Light</h1>
+    <p>What's your name? It shows up for the other person in games.</p>
+    <input id="nameInput" class="name" maxlength="16" autocomplete="off" aria-label="Your name">
+    <button type="submit">Continue</button>
+    <p id="nameMsg" class="msg"></p>
+  </form>
+</div>
+
 <div id="away" class="lock" hidden>
   <div class="box">
     <h1>Light</h1>
@@ -105,6 +206,7 @@ footer { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 14px;
 </div>
 
 <div id="offline" class="offline" hidden>Connection lost. Reconnecting...</div>
+<div id="toast" class="toast" hidden></div>
 
 <script>
 const $ = id => document.getElementById(id);
@@ -116,15 +218,38 @@ const STATUS = {
   connecting: ['Connecting to the light', 'busy'],
   error: ['Can\'t reach the light', 'bad'],
 };
+const PALETTE = {
+  red: [255,0,0], orange: [255,90,0], yellow: [255,200,0], green: [0,255,0],
+  cyan: [0,255,190], blue: [0,90,255], purple: [140,0,255], pink: [255,0,140],
+};
+const SNAP = ['red', 'orange', 'yellow', 'green', 'blue', 'purple'];
+const DARK = [0, 0, 0];
+const GAMES = {
+  tug: { title: 'Tug of war', rule: 'Tap as fast as you can. The light slides toward whoever is winning.' },
+  quickdraw: { title: 'Reaction duel', rule: 'Wait for green, then tap first. Tap early and you lose the round. First to 3.' },
+  snap: { title: 'Color snap', rule: 'Tap the color of the light or the word, whatever the round asks. First to 5.' },
+  potato: { title: 'Hot potato', rule: 'Pass it by tapping the right number. Whoever holds it when it blows up loses. Best of 3.' },
+  rps: { title: 'Rock paper scissors', rule: 'The light flashes the winner\'s color. First to 3.' },
+  simon: { title: 'Simon says', rule: 'Tap the color only when Simon says. Tap when he didn\'t and you\'re out.' },
+  memory: { title: 'Color memory', rule: 'Watch the colors, then repeat them. One more every round.' },
+  reflex: { title: 'Reaction test', rule: 'Tap the moment it turns green. Average of 5 tries.', unit: ' ms' },
+  whack: { title: 'Whack-a-color', rule: 'Tap the lit squares for 30 seconds. Empty squares cost a point.' },
+  stop: { title: 'Stop the light', rule: 'The light cycles through colors. Stop it on the target. 5 rounds.' },
+};
+const DUELS = ['tug', 'quickdraw', 'snap', 'potato', 'rps'];
+const SOLOS = ['simon', 'memory', 'reflex', 'whack', 'stop'];
 
 let ws, state = null, caps = { color: true, effects: [], speed: false }, link = {}, viewers = 0;
 let retry = 500, lastSent = 0, flushTimer = null;
 const pending = {};
 const touched = {};
+let me = null, arcade = null, lastEvent = null, solo = null, pendingSolo = null, soloCard = false, duelKey = '';
+let goSeen = {}, drawTapped = 0, snapSeen = {}, rpsPick = {};
+let lightNext = null, lightLast = 0, lightTimer = null, toastTimer = null;
 
 const store = {
-  get() { try { return localStorage.getItem('light-pin') || ''; } catch { return ''; } },
-  set(v) { try { v ? localStorage.setItem('light-pin', v) : localStorage.removeItem('light-pin'); } catch {} },
+  get(k) { try { return localStorage.getItem('light-' + k) || ''; } catch { return ''; } },
+  set(k, v) { try { v ? localStorage.setItem('light-' + k, v) : localStorage.removeItem('light-' + k); } catch {} },
 };
 
 function hsvToRgb(h, s, v) {
@@ -148,6 +273,11 @@ function rgbToHs([r, g, b]) {
 
 const css = c => `rgb(${c[0]},${c[1]},${c[2]})`;
 const label = name => name.replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : '';
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pick = list => list[Math.floor(Math.random() * list.length)];
+const raw = msg => { if (ws && ws.readyState === 1) ws.send(JSON.stringify(msg)); };
+const g = fields => raw({ t: 'g', ...fields });
 
 function connect() {
   ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws');
@@ -155,6 +285,11 @@ function connect() {
   ws.onmessage = e => handle(JSON.parse(e.data));
   ws.onclose = () => {
     if (state) $('offline').hidden = false;
+    if (solo) {
+      solo.stop();
+      solo = null;
+      $('gameView').hidden = true;
+    }
     setTimeout(connect, retry);
     retry = Math.min(retry * 2, 8000);
   };
@@ -167,16 +302,23 @@ function handle(m) {
   }
   $('away').hidden = true;
   if (m.t === 'need_pin') {
-    const pin = store.get();
-    if (pin) ws.send(JSON.stringify({ t: 'auth', pin }));
+    const pin = store.get('pin');
+    if (pin) raw({ t: 'auth', pin });
     else showLock('');
   } else if (m.t === 'auth') {
     if (m.ok) $('lock').hidden = true;
-    else { store.set(''); showLock(m.msg); }
+    else { store.set('pin', ''); showLock(m.msg); }
+  } else if (m.t === 'you') {
+    me = m.id;
+    if (store.get('name')) hello();
+    else askName();
   } else if (m.t === 'state') {
     state = m.state; caps = m.caps; link = m.link; viewers = m.viewers;
     $('app').hidden = false;
     render();
+  } else if (m.t === 'arcade') {
+    arcade = m;
+    renderArcade();
   }
 }
 
@@ -191,8 +333,8 @@ $('pinForm').addEventListener('submit', e => {
   e.preventDefault();
   const pin = $('pin').value.trim();
   if (!pin || !ws || ws.readyState !== 1) return;
-  store.set(pin);
-  ws.send(JSON.stringify({ t: 'auth', pin }));
+  store.set('pin', pin);
+  raw({ t: 'auth', pin });
 });
 
 function send(fields) {
@@ -211,7 +353,7 @@ function send(fields) {
 function flush() {
   flushTimer = null;
   if (!Object.keys(pending).length) return;
-  if (ws && ws.readyState === 1) ws.send(JSON.stringify({ t: 'set', ...pending }));
+  raw({ t: 'set', ...pending });
   for (const k in pending) delete pending[k];
   lastSent = Date.now();
 }
@@ -274,7 +416,7 @@ function render() {
   [...box.children].forEach(b => b.classList.toggle('sel', state.mode === 'effect' && b.dataset.name === state.effect));
   setSlider('speed', state.speed);
 
-  $('viewers').textContent = viewers > 1 ? `${viewers} people have this page open. Changes show up for everyone.` : 'Only you have this page open right now.';
+  if (!arcade) $('viewers').textContent = viewers > 1 ? `${viewers} people have this page open. Changes show up for everyone.` : 'Only you have this page open right now.';
 }
 
 SWATCHES.forEach(c => {
@@ -295,6 +437,609 @@ slider('bright', v => send({ brightness: v }));
 slider('speed', v => send({ speed: v }));
 $('power').onclick = () => send({ on: !state.on });
 
+function setTab(name) {
+  $('paneLight').hidden = name !== 'light';
+  $('paneGames').hidden = name !== 'games';
+  $('tabLight').classList.toggle('sel', name === 'light');
+  $('tabGames').classList.toggle('sel', name === 'games');
+  if (name === 'games') $('tabGames').classList.remove('ping');
+  store.set('tab', name);
+}
+$('tabLight').onclick = () => setTab('light');
+$('tabGames').onclick = () => setTab('games');
+
+function hello() {
+  raw({ t: 'hello', name: store.get('name') || 'Guest', color: store.get('color') });
+}
+
+function askName() {
+  $('nameGate').hidden = false;
+  $('nameInput').focus();
+}
+
+$('nameForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('nameInput').value.trim();
+  if (!name) {
+    $('nameMsg').textContent = 'Type a name first.';
+    return;
+  }
+  store.set('name', name);
+  $('myName').value = name;
+  $('nameGate').hidden = true;
+  hello();
+});
+
+if (!PALETTE[store.get('color')]) store.set('color', pick(Object.keys(PALETTE)));
+$('myName').value = store.get('name');
+$('myName').addEventListener('change', () => { store.set('name', $('myName').value.trim()); hello(); });
+Object.keys(PALETTE).forEach(c => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.style.background = css(PALETTE[c]);
+  b.setAttribute('aria-label', c);
+  b.dataset.color = c;
+  b.onclick = () => { store.set('color', c); paintChips(); hello(); };
+  $('myColors').append(b);
+});
+function paintChips() {
+  [...$('myColors').children].forEach(b => b.classList.toggle('sel', b.dataset.color === store.get('color')));
+}
+paintChips();
+$('nudge').onclick = () => g({ a: 'nudge' });
+
+function toast(text) {
+  $('toast').textContent = text;
+  $('toast').hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { $('toast').hidden = true; }, 3200);
+}
+
+function gameLight(c) {
+  lightNext = c;
+  const wait = 90 - (Date.now() - lightLast);
+  if (wait <= 0) flushLight();
+  else if (!lightTimer) lightTimer = setTimeout(flushLight, wait);
+}
+
+function flushLight() {
+  clearTimeout(lightTimer);
+  lightTimer = null;
+  if (!lightNext) return;
+  g({ a: 'light', c: lightNext });
+  lightNext = null;
+  lightLast = Date.now();
+}
+
+function timers() {
+  const ids = new Set();
+  return {
+    after(ms, fn) {
+      const id = setTimeout(() => { ids.delete(id); fn(); }, ms);
+      ids.add(id);
+    },
+    clear() { ids.forEach(clearTimeout); ids.clear(); },
+  };
+}
+
+function sig(el, s) {
+  s = String(s);
+  if (el.dataset.sig === s) return false;
+  el.dataset.sig = s;
+  return true;
+}
+
+function runBar(el, ms) {
+  el.style.transition = 'none';
+  el.style.width = '100%';
+  void el.offsetWidth;
+  el.style.transition = `width ${ms}ms linear`;
+  el.style.width = '0%';
+}
+
+const pads = (colors, extra = '') => `<div class="pads ${extra}">${colors.map(c => `<button type="button" data-c="${c}" aria-label="${c}" style="background:${css(PALETTE[c])}"></button>`).join('')}</div>`;
+const fmtScore = (id, n) => GAMES[id].unit ? `${n}${GAMES[id].unit}` : String(n);
+
+function buildLobby() {
+  const card = (id, kind) => `<div class="card"><h3>${GAMES[id].title}</h3><button type="button" data-${kind}="${id}">${kind === 'duel' ? 'Challenge' : 'Play'}</button><p>${GAMES[id].rule}<span class="best" data-best="${id}"></span></p></div>`;
+  $('duels').innerHTML = DUELS.map(id => card(id, 'duel')).join('');
+  $('solos').innerHTML = SOLOS.map(id => card(id, 'solo')).join('');
+  $('duels').onclick = e => { const b = e.target.closest('[data-duel]'); if (b) g({ a: 'challenge', game: b.dataset.duel }); };
+  $('solos').onclick = e => { const b = e.target.closest('[data-solo]'); if (b) requestSolo(b.dataset.solo); };
+}
+buildLobby();
+
+function requestSolo(id) {
+  if (arcade && arcade.activity) return toast('Someone else is using the light right now');
+  pendingSolo = id;
+  g({ a: 'solo', game: id });
+}
+
+function renderArcade() {
+  if (!arcade) return;
+  const act = arcade.activity;
+  if (lastEvent === null) lastEvent = arcade.event.id;
+  else if (arcade.event.id > lastEvent) {
+    lastEvent = arcade.event.id;
+    toast(arcade.event.text);
+  }
+  $('busyNote').hidden = !act;
+  $('nudge').disabled = !!act;
+  document.querySelectorAll('[data-duel],[data-solo]').forEach(b => { b.disabled = !!act; });
+  SOLOS.forEach(id => {
+    const best = arcade.scores[id];
+    document.querySelector(`[data-best="${id}"]`).textContent = best ? `Best: ${fmtScore(id, best.score)} by ${best.name}` : '';
+  });
+  const wins = Object.entries(arcade.wins).sort((a, b) => b[1] - a[1]);
+  $('wins').textContent = wins.length ? wins.map(([n, w]) => `${n}: ${w}`).join('   ') : 'No 1v1 wins yet.';
+  const here = arcade.online.map(p => p.id === me ? `${p.name} (you)` : p.name);
+  $('viewers').textContent = here.length > 1 ? `Here now: ${here.join(', ')}` : 'Only you have this page open right now.';
+  renderActivity(act);
+  $('lobby').hidden = !$('gameView').hidden;
+}
+
+function renderActivity(act) {
+  const box = $('activity'), view = $('gameView');
+  if (!act) {
+    box.hidden = true;
+    duelKey = '';
+    if (!soloCard && !solo) view.hidden = true;
+    $('tabGames').classList.remove('ping');
+    return;
+  }
+  const mine = act.players.some(p => p.id === me);
+  const host = act.players[0];
+  if (act.kind === 'solo') {
+    if (mine) {
+      box.hidden = true;
+      if (!solo && pendingSolo === act.game) startSolo(act.game);
+    } else {
+      box.hidden = false;
+      const glow = arcade.glow ? `<span class="swatch" style="background:${css(arcade.glow)}"></span>` : '';
+      box.innerHTML = `<span>${esc(host.name)} is playing ${GAMES[act.game].title}. Score: ${act.score}</span>${glow}`;
+    }
+    return;
+  }
+  if (act.phase === 'waiting') {
+    box.hidden = false;
+    duelKey = '';
+    if (!solo && !soloCard) view.hidden = true;
+    if (mine) {
+      box.innerHTML = `<span>Waiting for someone to join ${GAMES[act.game].title}</span><button type="button" data-k="cancel">Cancel</button>`;
+      box.querySelector('button').onclick = () => g({ a: 'leave' });
+    } else {
+      box.innerHTML = `<span>${esc(host.name)} challenged you to ${GAMES[act.game].title}</span><button type="button" data-k="join">Join</button>`;
+      box.querySelector('button').onclick = () => { setTab('games'); g({ a: 'join' }); };
+      if ($('paneGames').hidden) $('tabGames').classList.add('ping');
+    }
+    return;
+  }
+  box.hidden = true;
+  if (mine && act.phase === 'countdown' && $('paneGames').hidden) setTab('games');
+  renderDuel(act);
+}
+
+function renderDuel(act) {
+  const view = $('gameView');
+  view.hidden = false;
+  soloCard = false;
+  const key = act.game + act.players.map(p => p.id).join();
+  if (key !== duelKey) {
+    duelKey = key;
+    view.innerHTML = `<div class="game"><div class="g-head"><span class="title">${GAMES[act.game].title}</span><button type="button" class="ghost" data-k="leave">Leave</button></div><div class="glow" data-k="glow"></div><div class="vs"><span data-k="p0"></span><b data-k="score"></b><span class="p2" data-k="p1"></span></div><div data-k="body"></div></div>`;
+    view.querySelector('[data-k=leave]').onclick = () => g({ a: 'leave' });
+  }
+  const idx = act.players.findIndex(p => p.id === me);
+  const q = k => view.querySelector(`[data-k=${k}]`);
+  q('leave').hidden = idx < 0 || act.phase === 'over';
+  act.players.forEach((p, i) => {
+    q('p' + i).innerHTML = `<span class="chip" style="background:${css(PALETTE[act.colors[i]])}"></span>${esc(p.name)}${i === idx ? ' (you)' : ''}`;
+  });
+  q('score').textContent = act.game === 'tug' ? 'vs' : `${act.score[0]} : ${act.score[1]}`;
+  q('glow').style.background = arcade.glow ? css(arcade.glow) : '#000';
+  const body = q('body');
+  if (act.phase === 'countdown') {
+    if (sig(body, 'cd' + act.n)) body.innerHTML = `<div class="big huge">${act.n}</div><p class="result">${GAMES[act.game].rule}</p>`;
+    return;
+  }
+  if (act.phase === 'over') {
+    if (sig(body, 'over')) {
+      const head = act.winner === null ? 'Draw' : `${esc(act.players[act.winner].name)} wins`;
+      body.innerHTML = `<div class="big">${head}</div><p class="result">${esc(act.reason || '')}</p>`;
+    }
+    return;
+  }
+  DUEL_UI[act.game](act, idx, body);
+}
+
+const DUEL_UI = {
+  tug(act, idx, body) {
+    if (sig(body, 'tug')) {
+      body.innerHTML = `<div class="g-row"><span class="small">Pull the light to your color</span><span data-k="left"></span></div><div class="rope"><span class="fill"></span><span class="mid"></span><span class="knot"></span></div>${idx >= 0 ? '<button type="button" class="pull" data-act="tug">PULL</button>' : '<p class="result">Watching</p>'}`;
+    }
+    const t = (act.rope + 100) / 200;
+    const fill = body.querySelector('.fill');
+    fill.style.left = `${Math.min(t, 0.5) * 100}%`;
+    fill.style.width = `${Math.abs(t - 0.5) * 100}%`;
+    fill.style.background = css(PALETTE[act.colors[t < 0.5 ? 0 : 1]]);
+    body.querySelector('.knot').style.left = `${t * 100}%`;
+    body.querySelector('[data-k=left]').textContent = `${Math.ceil(act.left || 0)}s left`;
+  },
+  quickdraw(act, idx, body) {
+    if (act.phase === 'go' && goSeen.round !== act.round) goSeen = { round: act.round, at: performance.now() };
+    if (sig(body, 'qd')) body.innerHTML = `<div class="zone" data-act="draw"></div><p class="result" data-k="ms"></p>`;
+    const zone = body.querySelector('.zone');
+    const look = {
+      ready: ['#1c1c1c', 'Get ready', '#fff'],
+      wait: ['#5a0000', 'Wait for green', '#fff'],
+      go: ['#00c040', 'TAP', '#000'],
+      result: ['#151515', act.text || '', '#fff'],
+    }[act.phase] || ['#151515', '', '#fff'];
+    zone.style.background = look[0];
+    zone.style.color = look[2];
+    zone.textContent = drawTapped === act.round && act.phase !== 'result' ? 'Tapped' : look[1];
+    const ms = act.ms || [];
+    body.querySelector('[data-k=ms]').textContent = act.phase === 'result'
+      ? act.players.map((p, i) => `${p.name}: ${ms[i] != null ? ms[i] + ' ms' : '-'}`).join('   ')
+      : 'First to 3';
+  },
+  snap(act, idx, body) {
+    if (act.phase === 'show' && snapSeen.round !== act.round) snapSeen = { round: act.round, at: performance.now(), c: null };
+    if (sig(body, act.phase + act.round)) {
+      body.innerHTML = act.phase === 'show'
+        ? `<div class="big">Tap the ${act.rule === 'light' ? 'LIGHT color' : 'WORD'}</div><div class="colorbox" style="background:${css(PALETTE[act.light])}"></div><div class="word" style="color:${css(PALETTE[act.ink])}">${act.word.toUpperCase()}</div>${pads(act.options)}<p class="result" data-k="note"></p>`
+        : `<div class="big">${esc(act.text)}</div>`;
+    }
+    if (act.phase !== 'show') return;
+    body.querySelectorAll('.pads button').forEach(b => {
+      b.dataset.act = 'snap';
+      b.disabled = idx < 0 || !!snapSeen.c;
+      b.classList.toggle('lit', b.dataset.c === snapSeen.c);
+    });
+    body.querySelector('[data-k=note]').textContent = act.picked.map((p, i) => p ? `${act.players[i].name} picked` : '').filter(Boolean).join(', ');
+  },
+  potato(act, idx, body) {
+    const holder = act.players[act.holder];
+    if (!sig(body, `${act.phase}${act.round}-${act.holder}-${act.target}-${act.options}`)) return;
+    if (act.phase === 'boom') {
+      body.innerHTML = `<div class="big">${esc(act.text)}</div>`;
+    } else if (act.holder === idx) {
+      body.innerHTML = `<div class="big">You have the potato. Tap ${act.target}</div><div class="opts two">${act.options.map(n => `<button type="button" data-act="potato" data-n="${n}">${n}</button>`).join('')}</div>`;
+    } else {
+      body.innerHTML = `<div class="big">${esc(holder.name)} has the potato</div><p class="result">It blows up at a random moment. Don't be the one holding it.</p>`;
+    }
+  },
+  rps(act, idx, body) {
+    if (sig(body, act.phase + act.round)) {
+      body.innerHTML = act.phase === 'pick'
+        ? `${idx >= 0 ? `<div class="opts">${['rock', 'paper', 'scissors'].map(c => `<button type="button" data-act="rps" data-c="${c}">${cap(c)}</button>`).join('')}</div>` : ''}<p class="result" data-k="note"></p>`
+        : `<div class="big">${cap(act.picks[0]) || 'Nothing'} vs ${cap(act.picks[1]) || 'Nothing'}</div><p class="result">${esc(act.text)}</p>`;
+    }
+    if (act.phase !== 'pick') return;
+    const mine = rpsPick.round === act.round ? rpsPick.c : null;
+    body.querySelectorAll('[data-act=rps]').forEach(b => {
+      b.classList.toggle('sel', b.dataset.c === mine);
+      b.disabled = !!mine;
+    });
+    const notes = act.picked.map((p, i) => p && i !== idx ? `${act.players[i].name} has picked` : '').filter(Boolean);
+    if (idx >= 0) notes.unshift(mine ? `You picked ${mine}` : 'Pick one');
+    body.querySelector('[data-k=note]').textContent = notes.join('. ');
+  },
+};
+
+$('gameView').addEventListener('pointerdown', e => {
+  const el = e.target.closest('[data-act]');
+  const act = arcade && arcade.activity;
+  if (!el || !act || act.kind !== 'match' || el.disabled) return;
+  if (act.players.findIndex(p => p.id === me) < 0) return;
+  e.preventDefault();
+  const kind = el.dataset.act;
+  if (kind === 'tug') {
+    g({ a: 'tap' });
+  } else if (kind === 'draw') {
+    if (drawTapped === act.round) return;
+    if (act.phase === 'go' && goSeen.round === act.round) {
+      drawTapped = act.round;
+      g({ a: 'tap', round: act.round, ms: Math.round(performance.now() - goSeen.at) });
+    } else if (act.phase === 'wait') {
+      drawTapped = act.round;
+      g({ a: 'tap', round: act.round, early: true });
+    }
+    renderDuel(act);
+  } else if (kind === 'snap') {
+    if (snapSeen.round !== act.round || snapSeen.c) return;
+    snapSeen.c = el.dataset.c;
+    g({ a: 'pick', round: act.round, c: el.dataset.c, ms: Math.round(performance.now() - snapSeen.at) });
+    renderDuel(act);
+  } else if (kind === 'potato') {
+    g({ a: 'pick', n: +el.dataset.n });
+  } else if (kind === 'rps') {
+    if (rpsPick.round === act.round) return;
+    rpsPick = { round: act.round, c: el.dataset.c };
+    g({ a: 'pick', round: act.round, c: el.dataset.c });
+    renderDuel(act);
+  }
+});
+
+function startSolo(id) {
+  pendingSolo = null;
+  soloCard = false;
+  duelKey = '';
+  const view = $('gameView');
+  view.hidden = false;
+  $('lobby').hidden = true;
+  view.innerHTML = `<div class="game"><div class="g-head"><span class="title">${GAMES[id].title}</span><span data-k="score"></span><button type="button" class="ghost" data-k="quit">Quit</button></div><div class="glow" data-k="glow"></div><div data-k="body"></div></div>`;
+  const q = k => view.querySelector(`[data-k=${k}]`);
+  const t = timers();
+  let alive = true;
+  const api = {
+    after: t.after,
+    clear: t.clear,
+    alive: () => alive,
+    light(c) {
+      if (!alive) return;
+      q('glow').style.background = css(c);
+      gameLight(c);
+    },
+    score(n) {
+      q('score').textContent = id === 'reflex' ? `Try ${n + 1} of 5` : `Score ${n}`;
+      g({ a: 'progress', score: n });
+    },
+    countdown(el, then) {
+      let n = 3;
+      const step = () => {
+        if (!alive) return;
+        if (n === 0) return then();
+        el.textContent = n--;
+        t.after(700, step);
+      };
+      step();
+    },
+    over(score, why) {
+      if (!alive) return;
+      alive = false;
+      t.clear();
+      flushLight();
+      solo = null;
+      soloCard = true;
+      q('quit').hidden = true;
+      q('body').innerHTML = `<div class="big huge">${fmtScore(id, score)}</div><p class="result">${esc(why)}</p><div class="g-row" style="margin-top:12px"><button type="button" class="wide solid" data-k="again" disabled>Play again</button><button type="button" class="wide" data-k="back">Back to games</button></div>`;
+      setTimeout(() => {
+        g({ a: 'end', score, record: true });
+        q('again').disabled = false;
+      }, 1000);
+      q('again').onclick = () => requestSolo(id);
+      q('back').onclick = () => { soloCard = false; view.hidden = true; renderArcade(); };
+    },
+  };
+  solo = { id, stop() { alive = false; t.clear(); } };
+  q('quit').onclick = () => {
+    solo.stop();
+    solo = null;
+    g({ a: 'end', record: false });
+    view.hidden = true;
+    renderArcade();
+  };
+  api.score(0);
+  SOLO_UI[id](q('body'), api);
+}
+
+const SOLO_UI = {
+  simon(box, api) {
+    let score = 0, cmd = null, n = 0;
+    box.innerHTML = `<div class="bar"><i></i></div><div class="big" data-k="cmd"></div>${pads(SNAP)}<p class="result">Only tap when Simon says. If he didn't say it, don't touch anything.</p>`;
+    const cmdEl = box.querySelector('[data-k=cmd]'), bar = box.querySelector('.bar i');
+    const next = () => {
+      const id = ++n, color = pick(SNAP), says = Math.random() < 0.65, time = Math.max(900, 2300 - score * 70);
+      cmd = { id, color, says };
+      cmdEl.innerHTML = `${says ? 'Simon says tap' : 'Tap'} <span style="color:${css(PALETTE[color])}">${color.toUpperCase()}</span>`;
+      api.light(PALETTE[color]);
+      runBar(bar, time);
+      api.after(time, () => {
+        if (!cmd || cmd.id !== id) return;
+        if (cmd.says) lose('Too slow');
+        else pass();
+      });
+    };
+    const pass = () => {
+      cmd = null;
+      score++;
+      api.score(score);
+      cmdEl.textContent = '';
+      api.light(DARK);
+      api.after(350, next);
+    };
+    const lose = why => {
+      cmd = null;
+      api.light([255, 0, 0]);
+      api.over(score, why);
+    };
+    box.querySelector('.pads').addEventListener('pointerdown', e => {
+      const b = e.target.closest('button');
+      if (!b || !cmd) return;
+      if (!cmd.says) lose('Simon didn\'t say it');
+      else if (b.dataset.c !== cmd.color) lose('Wrong color');
+      else pass();
+    });
+    api.countdown(cmdEl, next);
+  },
+
+  memory(box, api) {
+    const seq = [];
+    let step = 0, input = false;
+    box.innerHTML = `<div class="big" data-k="status"></div>${pads(SNAP, 'dim')}<p class="result">Watch the colors, then tap them back in the same order.</p>`;
+    const status = box.querySelector('[data-k=status]'), padEl = box.querySelector('.pads');
+    const flash = (c, ms) => {
+      const b = padEl.querySelector(`[data-c=${c}]`);
+      b.classList.add('lit');
+      api.light(PALETTE[c]);
+      api.after(ms, () => { b.classList.remove('lit'); api.light(DARK); });
+    };
+    const round = () => {
+      seq.push(pick(SNAP));
+      input = false;
+      status.textContent = 'Watch';
+      const on = Math.max(320, 650 - seq.length * 25), gap = 200;
+      seq.forEach((c, i) => api.after(500 + i * (on + gap), () => flash(c, on)));
+      api.after(500 + seq.length * (on + gap), () => { input = true; step = 0; status.textContent = 'Your turn'; });
+    };
+    padEl.addEventListener('pointerdown', e => {
+      const b = e.target.closest('button');
+      if (!b || !input) return;
+      const c = b.dataset.c;
+      if (c !== seq[step]) {
+        input = false;
+        api.light([255, 0, 0]);
+        return api.over(seq.length - 1, `It was ${seq[step]}`);
+      }
+      flash(c, 180);
+      step++;
+      if (step === seq.length) {
+        input = false;
+        api.score(seq.length);
+        status.textContent = 'Nice';
+        api.after(700, round);
+      }
+    });
+    api.countdown(status, round);
+  },
+
+  reflex(box, api) {
+    const times = [];
+    let phase = 'idle', goAt = 0;
+    box.innerHTML = `<div class="zone">Tap to start</div><p class="result" data-k="msg">Watch the screen, the light lags a little behind it.</p>`;
+    const zone = box.querySelector('.zone'), msg = box.querySelector('[data-k=msg]');
+    const paint = (bg, text, color = '#fff') => { zone.style.background = bg; zone.style.color = color; zone.textContent = text; };
+    const arm = () => {
+      phase = 'wait';
+      paint('#5a0000', 'Wait for green');
+      api.light([255, 0, 0]);
+      api.after(1500 + Math.random() * 2500, () => {
+        phase = 'go';
+        goAt = performance.now();
+        paint('#00c040', 'TAP', '#000');
+        api.light([0, 255, 0]);
+      });
+    };
+    zone.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if (phase === 'idle' || phase === 'early') return arm();
+      if (phase === 'wait') {
+        api.clear();
+        phase = 'early';
+        paint('#3a2a00', 'Too early. Tap to try again');
+        api.light([255, 90, 0]);
+        return;
+      }
+      if (phase !== 'go') return;
+      const ms = Math.round(performance.now() - goAt);
+      times.push(ms);
+      api.light(DARK);
+      msg.textContent = times.map((t, i) => `${i + 1}: ${t} ms`).join('   ');
+      if (times.length === 5) {
+        phase = 'done';
+        const avg = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
+        return api.over(avg, `Average of 5 tries (${times.join(', ')})`);
+      }
+      api.score(times.length);
+      phase = 'idle';
+      paint('#151515', `${ms} ms. Tap for the next one`);
+    });
+  },
+
+  whack(box, api) {
+    let score = 0, left = 30, started = false;
+    const lit = new Map();
+    box.innerHTML = `<div class="big" data-k="time"></div><div class="grid9">${[...Array(9)].map((_, i) => `<button type="button" data-i="${i}" aria-label="square ${i + 1}"></button>`).join('')}</div><p class="result">Tap the lit squares. Tapping an empty one costs a point.</p>`;
+    const cells = [...box.querySelectorAll('.grid9 button')], timeEl = box.querySelector('[data-k=time]');
+    const spawn = () => {
+      if (left <= 0) return;
+      const free = cells.map((_, i) => i).filter(i => !lit.has(i));
+      if (lit.size < 2 && free.length) {
+        const i = pick(free), c = pick(SNAP), id = Math.random();
+        lit.set(i, { c, id });
+        cells[i].style.background = css(PALETTE[c]);
+        api.light(PALETTE[c]);
+        api.after(Math.max(650, 1200 - score * 20), () => {
+          const cur = lit.get(i);
+          if (cur && cur.id === id) { lit.delete(i); cells[i].style.background = ''; }
+        });
+      }
+      api.after(Math.max(380, 750 - score * 12), spawn);
+    };
+    const tick = () => {
+      left--;
+      timeEl.textContent = `${left}s`;
+      if (left > 0) return api.after(1000, tick);
+      lit.clear();
+      cells.forEach(c => { c.style.background = ''; });
+      api.over(score, '30 seconds are up');
+    };
+    box.querySelector('.grid9').addEventListener('pointerdown', e => {
+      const b = e.target.closest('button');
+      if (!b || !started || left <= 0) return;
+      const i = +b.dataset.i;
+      if (lit.has(i)) {
+        const { c } = lit.get(i);
+        lit.delete(i);
+        b.style.background = '';
+        score++;
+        api.light(PALETTE[c]);
+      } else {
+        score = Math.max(0, score - 1);
+      }
+      api.score(score);
+    });
+    api.countdown(timeEl, () => {
+      started = true;
+      timeEl.textContent = `${left}s`;
+      spawn();
+      api.after(1000, tick);
+    });
+  },
+
+  stop(box, api) {
+    const TARGETS = { red: 0, orange: 28, yellow: 55, green: 120, blue: 220, purple: 275 };
+    let roundNo = 0, total = 0, hue = 0, speed = 0, target = null, running = false, last = 0;
+    box.innerHTML = `<div class="g-row"><span>Stop on <b data-k="target"></b></span><span data-k="round"></span></div><div class="colorbox" data-k="box" style="height:150px"></div><button type="button" class="pull" data-k="stop">STOP</button><p class="result" data-k="msg">The closer to the target color, the more points. 100 per round.</p>`;
+    const q = k => box.querySelector(`[data-k=${k}]`);
+    const frame = now => {
+      if (!running || !api.alive()) return;
+      hue = (hue + speed * (last ? (now - last) / 1000 : 0)) % 360;
+      last = now;
+      q('box').style.background = `hsl(${hue},100%,50%)`;
+      api.light(hsvToRgb(hue, 100, 100));
+      requestAnimationFrame(frame);
+    };
+    const round = () => {
+      roundNo++;
+      target = pick(Object.keys(TARGETS));
+      speed = 120 + roundNo * 45;
+      hue = Math.random() * 360;
+      last = 0;
+      q('target').textContent = target.toUpperCase();
+      q('target').style.color = `hsl(${TARGETS[target]},100%,55%)`;
+      q('round').textContent = `Round ${roundNo} of 5`;
+      running = true;
+      requestAnimationFrame(frame);
+    };
+    q('stop').addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if (!running) return;
+      running = false;
+      const d = Math.abs(((hue - TARGETS[target] + 540) % 360) - 180);
+      const pts = Math.max(0, Math.round(100 - d * 2.5));
+      total += pts;
+      api.score(total);
+      q('msg').textContent = `${Math.round(d)} degrees off, +${pts} points`;
+      if (roundNo === 5) return api.over(total, `${total} of 500 points`);
+      api.after(1300, round);
+    });
+    api.countdown(q('round'), round);
+  },
+};
+
+setTab(store.get('tab') === 'games' ? 'games' : 'light');
 connect();
 </script>
 </body>
